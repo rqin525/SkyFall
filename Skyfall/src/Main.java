@@ -6,6 +6,11 @@ import javax.swing.JFrame;
 import processing.awt.PSurfaceAWT;
 import processing.core.PApplet;
 
+/**
+ * Has the main method
+ * @author ruiqi
+ * 5/4/18
+ */
 public class Main {
 
 	public static void main(String args[]) {
@@ -24,7 +29,6 @@ public class Main {
 		window.setVisible(true);
 		canvas.requestFocus();
 		
-		drawing.run();
 	}
 
 }

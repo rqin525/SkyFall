@@ -14,17 +14,18 @@ public class Platform {
 
 	private boolean[][] grid;
 	private int side;
-	private ArrayList<Rectangle> emptyTiles;
+	private Rectangle[][] tiles;
 	
 	public Platform() {
 		grid = new boolean[8][8];
 		side = 8;
-
+		tiles = new Rectangle[8][8];
 	}
 	
 	public Platform(int sideNum) {
 		grid = new boolean[sideNum][sideNum];
 		side = sideNum;
+		tiles = new Rectangle[sideNum][sideNum];
 	}
 	
 	public void dropTile(int x, int y) {
@@ -36,6 +37,10 @@ public class Platform {
 	
 	public boolean isEmpty(int x, int y) {
 		return grid[x][y];
+	}
+	
+	public boolean isOnPlatform(int x, int y) {
+		return false;
 	}
 	
 	/**
@@ -65,7 +70,7 @@ public class Platform {
 					marker.fill(128, 128, 128);
 				
 				marker.rect(j*cellWidth+x, i*cellHeight+y, cellWidth, cellHeight);
-
+				tiles[j][i]=new Rectangle((int)(j*cellWidth+x), (int)(i*cellHeight+y), (int)cellWidth, (int)cellHeight);
 			}
 		}
 		marker.popStyle();

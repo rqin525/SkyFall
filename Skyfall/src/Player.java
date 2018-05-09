@@ -2,6 +2,13 @@ import java.awt.Image;
 
 import processing.core.PImage;
 
+/**
+ * Represents a player entity that can interact with other players 
+ * 
+ * 
+ * @author ruiqi
+ * 5/4/18
+ */
 public class Player extends MovingImage{
 
 	private Weapon weapon;
