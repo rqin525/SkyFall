@@ -1,5 +1,11 @@
 import processing.core.PApplet;
 
+/**
+ * Represents a set of instructions which communicates to the users how to play the Skyfall game.
+ * 
+ * @author Aryaman Das
+ * Date: 5/6/18
+ */
 public class Instructions {
 	public void draw(PApplet marker) {
 		marker.fill(255);

@@ -7,7 +7,7 @@ import processing.core.PApplet;
  * Represents a crumbling platform that players interact on, where a tile
  * on the platform equals true if empty
  * 
- * @author ruiqi
+ * @author Richard Qin
  * Date: 5/6/18
  */
 public class Platform {

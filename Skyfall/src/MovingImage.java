@@ -8,7 +8,7 @@ import javax.swing.*;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-/*
+/**
  * Represents a moving, appearing/disappearing image.
  *
  * by: Shelby
@@ -53,14 +53,8 @@ public class MovingImage extends Rectangle2D.Double{
 	}
 	
 	
-	public void draw(PApplet marker) {
-	/*	Graphics2D g2 = (Graphics2D)g;
-		AffineTransform at = g2.getTransform();
-
-		g2.rotate(dir, getCenterX(), getCenterY());
-		*/
-		marker.image(image,(float)x,(float)y,(float)width,(float)height);
-		//g2.setTransform(at);
+	public void draw(PApplet marker) {		
+		marker.image(image,(int)x,(int)y,(int)width,(int)height);
 	}
 	
 	public void turn(double dir) {

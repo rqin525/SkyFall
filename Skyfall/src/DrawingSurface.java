@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
@@ -15,7 +16,7 @@ import processing.core.PImage;
 /**
  * Represents the screen which the graphics are drawn on
  * 
- * @author ruiqi
+ * @author Richard Qin
  * Date: 5/8/18
  */
 public class DrawingSurface extends PApplet {
@@ -25,8 +26,10 @@ public class DrawingSurface extends PApplet {
 	private Player agent, villian;
 	private Platform board;
 	private int time, runCount;
+	private PImage back, agentImage, villianImage;
 
-	private boolean leftKeyPressed, rightKeyPressed, upKeyPressed, downKeyPressed;
+	private ArrayList<Integer> keys;
+
 	private boolean pressedEnter, pressedI, pressedBackspace, pressedQuit = false;
 
 	private Instructions i = new Instructions();
@@ -35,13 +38,21 @@ public class DrawingSurface extends PApplet {
 		board = new Platform();
 		time = millis();
 		runCount = 0;
+		keys = new ArrayList<Integer>();
+	
 	}
 
 	// The statements in the setup() function 
 	// execute once when the program begins
 	public void setup() {
-		agent = new Player(loadImage("Agent.png"), 50, height/2, height/8, height/8);
-		villian = new Player(loadImage("villian.png"), 620, height/2, height/8, height/8);
+		back = loadImage("cityTop.jpg");
+		
+		agentImage = loadImage("Agent.png");
+		villianImage = loadImage("villian.png");
+		
+		agent = new Player(agentImage, 620, height/2);
+		villian = new Player(villianImage, 50, height/2);
+		
 		//size(0,0,PApplet.P3D);
 	}
 
@@ -51,6 +62,8 @@ public class DrawingSurface extends PApplet {
 	// line is executed again.
 	public void draw() { 
 		background(255);   // Clear the screen with a white background
+		
+		
 		float ratioX = (float)width/DRAWING_WIDTH;
 		float ratioY = (float)height/DRAWING_HEIGHT;
 
@@ -65,20 +78,24 @@ public class DrawingSurface extends PApplet {
 			}
 			pressedBackspace = false;
 		} else if (pressedEnter) {
+			
+			if(back.height==height&&back.width==width)
+				background(back);
+			else {
+				back.resize(width, height);
 
-			PImage back = loadImage("cityTop.jpg");
-			back.resize(width, height);
-			background(back);
-
+			}
+			
+			
 			fill(0);
 			textAlign(LEFT);
 			textSize(12);
 
 			text("Player 1: Agent X", 770, 30);
-			image(loadImage("Agent.png"), 770, 50);
+			image(agentImage, 770, 50);
 
 			text("Player 2: Supervillian Y", 770, 385);
-			image(loadImage("villian.png"), 770, 405);
+			image(villianImage, 770, 405);
 
 
 			if (board != null) {
@@ -88,15 +105,24 @@ public class DrawingSurface extends PApplet {
 			agent.draw(this);
 			villian.draw(this);
 			
+			
+			/*int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
+			int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
+			line((float)agent.getCenterX(), (float)agent.getCenterY(), (float)(x2+agent.getCenterX()), (float)(y2+agent.getCenterY()));
+			System.out.println(x2 + " "+y2);*/
 			text("Press 'q' to quit game", 770, 650);
 			if (pressedQuit) {
 				drawHomePage();
+				board = new Platform();
+				agent = new Player(agentImage, 620, height/2);
+				villian = new Player(villianImage, 50, height/2);
+				
 				pressedEnter = false;
 			}
 			pressedQuit = false;
-
+			//System.out.println(agent.getDirection());
 			run();
-
+			checkPlayers();
 		}
 
 
@@ -120,54 +146,69 @@ public class DrawingSurface extends PApplet {
 				randX = (int)(Math.random()*8);
 				randY = (int)(Math.random()*8);
 			}
-
+			
 			board.dropTile(randX,  randY);
 			time = millis();
 		}
-		//	System.out.println(second()-time);
-		if(upKeyPressed) {
-			agent.moveByAmount(0, -50);
-			upKeyPressed=false;
-		}else if(leftKeyPressed) {
-			agent.moveByAmount(-50, 0);
-			leftKeyPressed = false;
-		}else if(rightKeyPressed) {
-			agent.moveByAmount(50, 0);
-			rightKeyPressed=false;
-		}else if(downKeyPressed) {
-			agent.moveByAmount(0, 50);
-			downKeyPressed = false;
-		}
-
+		
+		if (isPressed(KeyEvent.VK_LEFT)) {
+			agent.walk(180); agent.turn(180);}
+		if (isPressed(KeyEvent.VK_RIGHT)) {
+			agent.walk(0); agent.turn(0);}
+		if (isPressed(KeyEvent.VK_UP)) {
+			agent.walk(270); agent.turn(270);}
+		if(isPressed(KeyEvent.VK_DOWN)) {
+			agent.walk(90); agent.turn(90);}
+		if(isPressed(KeyEvent.VK_W))
+			villian.walk(270); 
+		if(isPressed(KeyEvent.VK_A))
+			villian.walk(180);
+		if(isPressed(KeyEvent.VK_S))
+			villian.walk(90);
+		if(isPressed(KeyEvent.VK_D))
+			villian.walk(0);
 	}
 
 
+	
 
+	public void keyReleased() {
+		agent.getWeapon().setWeaponState(false);
+		while(keys.contains(keyCode))
+			keys.remove(new Integer(keyCode));
+	}
+
+	public boolean isPressed(Integer code) {
+		return keys.contains(code);
+	}
 
 	public void keyPressed() {
+		keys.add(keyCode);
 		if (key == 'i') {
 			pressedI = true;
-		} else if (keyCode == KeyEvent.VK_DOWN) {
-			downKeyPressed = true;
-
-		} else if (keyCode == KeyEvent.VK_UP) {
-			upKeyPressed = true;
-
 		} else if (keyCode == KeyEvent.VK_ENTER) {
 			pressedEnter = true;
-		} else if(keyCode == KeyEvent.VK_LEFT) {
-			leftKeyPressed = true;
-
-		}else if(keyCode == KeyEvent.VK_RIGHT) {
-			rightKeyPressed = true;
-
 		}else if(key == BACKSPACE) {
 			pressedBackspace = true;
 		}else if(key=='q') {
 			pressedQuit = true;
+		}else if(key==';') {
+			agent.useWeapon();
+		
 		}
 	}
 
+	private void checkPlayers() {
+		System.out.println(agent.getDirection());
+		if(agent.getWeapon().getWeaponState()) {
+			
+			int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
+			int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
+			if(villian.intersectsLine(agent.getCenterX(), agent.getCenterY(), x2+agent.getCenterX(), y2+agent.getCenterY())) {
+				villian.getHit(agent.getDirection());
+			}
+		}
+	}
 
 	private void drawHomePage() {
 		textSize(32);

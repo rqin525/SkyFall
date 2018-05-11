@@ -8,7 +8,7 @@ import processing.core.PApplet;
 
 /**
  * Has the main method
- * @author ruiqi
+ * @author Shelby
  * 5/4/18
  */
 public class Main {

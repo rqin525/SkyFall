@@ -6,7 +6,7 @@ import processing.core.PImage;
  * Represents a player entity that can interact with other players 
  * 
  * 
- * @author ruiqi
+ * @author Richard Qin
  * 5/4/18
  */
 public class Player extends MovingImage{
@@ -14,29 +14,36 @@ public class Player extends MovingImage{
 	private Weapon weapon;
 	
 	
-	public Player(PImage image, double x, double y, double w, double h) {
-		super(image, x, y, w, h);
+	public Player(PImage image, double x, double y) {
+		super(image, x, y, 80, 110);
 		weapon = new TrashPistol();
 	}
 
+	
+	public void walk(double angle) {
+		
+		moveByAmount(Math.cos(Math.toRadians(angle))*5, Math.sin(Math.toRadians(angle))*5);
+	}
+	
 	public void addWeapon(Weapon w) {
 		weapon = w;
 	}
 	
+	public Weapon getWeapon() {
+		return weapon;
+	}
 	
-	
-	public void fire() {
-		
+	public void useWeapon() {
+		weapon.fire();
 	}
 	
 	/**
+	 * Simulates the player getting hit by a weapon, and causes knockback accordingly
 	 * 
-	 * @param x horizontal direction which the player was hit; 0 if was not hit horizontally,
-	 * positive if from right, negative if from left
-	 * @param y vertical direction which the player was hit; 0 if was not hit vertically,
-	 * positive if from above, negative if from below
+	 * @param dir The direction that the shot came from
 	 */
-	public void getHit(int x, int y) {
-		moveByAmount((x/-x)*weapon.getKnockback(), (y/-y)*weapon.getKnockback());
+	public void getHit(double dir) {
+		int k = weapon.getKnockback();
+		moveByAmount(Math.cos(Math.toRadians(dir))*k, Math.sin(Math.toRadians(dir))*k);
 	}
 }
