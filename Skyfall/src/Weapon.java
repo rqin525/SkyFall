@@ -10,8 +10,9 @@ public abstract class Weapon {
 	private boolean isFired;
 	private int cooldown;
 	
-	public Weapon(int knock) {
+	public Weapon(int knock, int cooldown) {
 		knockback = knock;
+		this.cooldown = cooldown;
 		isFired = false;
 	}
 	
@@ -31,6 +32,10 @@ public abstract class Weapon {
 		isFired = state;
 	}
 		
+	public int getCooldown() {
+		return cooldown;
+	}
+	
 	public void draw() {
 		
 	}

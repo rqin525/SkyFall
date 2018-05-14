@@ -8,7 +8,7 @@
 public class TrashPistol extends Weapon{
 
 	public TrashPistol() {
-		super(7);
+		super(40, 1);
 	}
 	
 	

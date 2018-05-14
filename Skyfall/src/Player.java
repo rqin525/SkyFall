@@ -33,17 +33,33 @@ public class Player extends MovingImage{
 		return weapon;
 	}
 	
+	public boolean isInFrontOf(Player other) {
+		if(getCenterX()<other.getCenterX()&&other.getDirection()==180) {
+			return true;
+		}else if(getCenterX()>other.getCenterX()&&other.getDirection()==0) {
+			return true;
+		}else if(getCenterY()<other.getCenterY()&&other.getDirection()==90) {
+			return true;
+		}else if(getCenterY()>other.getCenterY()&&other.getDirection()==270) {
+			return true;
+		}
+		return false;
+	}
+	
 	public void useWeapon() {
 		weapon.fire();
 	}
 	
+	public void pushed(double dir, int k) {
+			moveByAmount(Math.cos(Math.toRadians(dir))*k, Math.sin(Math.toRadians(dir))*k);
+	}
 	/**
 	 * Simulates the player getting hit by a weapon, and causes knockback accordingly
 	 * 
 	 * @param dir The direction that the shot came from
 	 */
-	public void getHit(double dir) {
-		int k = weapon.getKnockback();
-		moveByAmount(Math.cos(Math.toRadians(dir))*k, Math.sin(Math.toRadians(dir))*k);
+	public void getHit(double dir, Player other) {
+		int k = other.getWeapon().getKnockback();
+		pushed(dir, k);
 	}
 }

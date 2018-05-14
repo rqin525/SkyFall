@@ -22,37 +22,49 @@ import processing.core.PImage;
 public class DrawingSurface extends PApplet {
 	public static final int DRAWING_WIDTH = 1000;
 	public static final int DRAWING_HEIGHT = 700;
-	
+
 	private Player agent, villian;
 	private Platform board;
-	private int time, runCount;
-	private PImage back, agentImage, villianImage;
+	private int time, runCount, cooldownA, cooldownV, tilesDropped;
+	private int handTemp, shotTemp;
+	private PImage back, agentImage, villianImage, handgun, pistol, shotgun;
 
 	private ArrayList<Integer> keys;
+	private WeaponIcon[][] icons;
 
 	private boolean pressedEnter, pressedI, pressedBackspace, pressedQuit = false;
+	private boolean agentFire, villianFire;
 
 	private Instructions i = new Instructions();
 
 	public DrawingSurface() {
 		board = new Platform();
 		time = millis();
+		cooldownA = millis();
+		cooldownV = millis();
 		runCount = 0;
+		tilesDropped = 0;
+		handTemp = 0;
+		shotTemp = 0;
 		keys = new ArrayList<Integer>();
-	
+		icons = new WeaponIcon[8][8];
+		agentFire = false;
+		villianFire = false;
 	}
 
 	// The statements in the setup() function 
 	// execute once when the program begins
 	public void setup() {
 		back = loadImage("cityTop.jpg");
-		
+
 		agentImage = loadImage("Agent.png");
 		villianImage = loadImage("villian.png");
-		
+
 		agent = new Player(agentImage, 620, height/2);
 		villian = new Player(villianImage, 50, height/2);
-		
+
+		handgun = loadImage("handgun.png");
+		shotgun = loadImage("Shotgun.png");
 		//size(0,0,PApplet.P3D);
 	}
 
@@ -62,13 +74,13 @@ public class DrawingSurface extends PApplet {
 	// line is executed again.
 	public void draw() { 
 		background(255);   // Clear the screen with a white background
-		
-		
+
+
 		float ratioX = (float)width/DRAWING_WIDTH;
 		float ratioY = (float)height/DRAWING_HEIGHT;
 
 		scale(ratioX, ratioY);
-		
+
 		drawHomePage();
 		if (pressedI) {
 			i.draw(this);
@@ -78,15 +90,15 @@ public class DrawingSurface extends PApplet {
 			}
 			pressedBackspace = false;
 		} else if (pressedEnter) {
-			
+
 			if(back.height==height&&back.width==width)
 				background(back);
 			else {
 				back.resize(width, height);
 
 			}
-			
-			
+
+
 			fill(0);
 			textAlign(LEFT);
 			textSize(12);
@@ -97,31 +109,53 @@ public class DrawingSurface extends PApplet {
 			text("Player 2: Supervillian Y", 770, 385);
 			image(villianImage, 770, 405);
 
-
-			if (board != null) {
-				board.draw(this, 50, 25, 650, 650);
-			}
-			
-			agent.draw(this);
-			villian.draw(this);
-			
-			
-			/*int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
-			int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
-			line((float)agent.getCenterX(), (float)agent.getCenterY(), (float)(x2+agent.getCenterX()), (float)(y2+agent.getCenterY()));
-			System.out.println(x2 + " "+y2);*/
 			text("Press 'q' to quit game", 770, 650);
 			if (pressedQuit) {
 				drawHomePage();
 				board = new Platform();
 				agent = new Player(agentImage, 620, height/2);
 				villian = new Player(villianImage, 50, height/2);
-				
+
 				pressedEnter = false;
 			}
 			pressedQuit = false;
-			//System.out.println(agent.getDirection());
+
+
+			if (board != null) {
+				board.draw(this, 50, 25, 640, 640);
+			}
+
+			for(WeaponIcon[] x : icons) {
+				for(WeaponIcon w : x) {
+					if(w!=null)
+						w.draw(this);
+				}
+			}
+
+
+			agent.draw(this);
+			villian.draw(this);
+
 			run();
+
+			if(agent.getWeapon().getWeaponState()) {
+				int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
+				int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
+				fill(255);
+				line((float)agent.getCenterX(), (float)agent.getCenterY(), (float)(x2+agent.getCenterX()), (float)(y2+agent.getCenterY()));
+				fill(0);
+			}
+			if(villian.getWeapon().getWeaponState()) {
+				int x2 = (int)Math.cos(Math.toRadians(villian.getDirection()))*DRAWING_WIDTH;
+				int y2 = (int)Math.sin(Math.toRadians(villian.getDirection()))*DRAWING_HEIGHT;
+				fill(255);
+				line((float)villian.getCenterX(), (float)villian.getCenterY(), (float)(x2+villian.getCenterX()), (float)(y2+villian.getCenterY()));
+				fill(0);
+			}
+
+			//System.out.println(x2 + " "+y2);
+
+
 			checkPlayers();
 		}
 
@@ -135,10 +169,12 @@ public class DrawingSurface extends PApplet {
 
 		if(runCount==0) {
 			time = millis();
+			cooldownA = millis();
+			cooldownV = millis();
 			runCount++;
 		}
 
-	//	System.out.println(millis()+" "+time);
+		//Times the platform and drops tiles
 		if((millis()-time)>=3000) {
 			int randX = (int)(Math.random()*8);
 			int randY = (int)(Math.random()*8);
@@ -146,11 +182,46 @@ public class DrawingSurface extends PApplet {
 				randX = (int)(Math.random()*8);
 				randY = (int)(Math.random()*8);
 			}
-			
 			board.dropTile(randX,  randY);
+			tilesDropped++;
 			time = millis();
 		}
-		
+		//manages agent's weapon cooldown
+		if((millis()-cooldownA)>=agent.getWeapon().getCooldown()*1000&&agentFire) {
+			agent.useWeapon();
+			agentFire = false;
+			cooldownA = millis();
+		}
+		//manages villian's weapon cooldown
+		if((millis()-cooldownV)>=villian.getWeapon().getCooldown()*1000&&villianFire) {
+			System.out.println(villian.getWeapon()+" "+villian.getWeapon().getKnockback());
+			villian.useWeapon();
+			villianFire = false;
+			cooldownV = millis();
+		}
+
+		if(tilesDropped-handTemp >= 4) {
+			int randX = (int)(Math.random()*8);
+			int randY = (int)(Math.random()*8);
+			while(board.isEmpty(randX, randY)) {
+				randX = (int)(Math.random()*8);
+				randY = (int)(Math.random()*8);
+			}
+			icons[randX][randY]=new WeaponIcon(handgun, 50+randX*80, 25+randY*80, new Handgun());
+
+			handTemp = tilesDropped;
+		}
+		if(tilesDropped-shotTemp >= 6) {
+			int randX = (int)(Math.random()*8);
+			int randY = (int)(Math.random()*8);
+			while(board.isEmpty(randX, randY)) {
+				randX = (int)(Math.random()*8);
+				randY = (int)(Math.random()*8);
+			}
+			icons[randX][randY]=new WeaponIcon(shotgun, 50+randX*80, 25+randY*80, new Shotgun());
+			shotTemp = tilesDropped;
+		}
+
 		if (isPressed(KeyEvent.VK_LEFT)) {
 			agent.walk(180); agent.turn(180);}
 		if (isPressed(KeyEvent.VK_RIGHT)) {
@@ -159,21 +230,24 @@ public class DrawingSurface extends PApplet {
 			agent.walk(270); agent.turn(270);}
 		if(isPressed(KeyEvent.VK_DOWN)) {
 			agent.walk(90); agent.turn(90);}
-		if(isPressed(KeyEvent.VK_W))
-			villian.walk(270); 
-		if(isPressed(KeyEvent.VK_A))
-			villian.walk(180);
-		if(isPressed(KeyEvent.VK_S))
-			villian.walk(90);
-		if(isPressed(KeyEvent.VK_D))
-			villian.walk(0);
+		if(isPressed(KeyEvent.VK_W)) {
+			villian.walk(270); villian.turn(270);}
+		if(isPressed(KeyEvent.VK_A)) {
+			villian.walk(180); villian.turn(180);}
+		if(isPressed(KeyEvent.VK_S)) {
+			villian.walk(90); villian.turn(90);}
+		if(isPressed(KeyEvent.VK_D)) {
+			villian.walk(0); villian.turn(0);}
 	}
 
 
-	
+
 
 	public void keyReleased() {
 		agent.getWeapon().setWeaponState(false);
+		villian.getWeapon().setWeaponState(false);
+		agentFire = false;
+		villianFire = false;
 		while(keys.contains(keyCode))
 			keys.remove(new Integer(keyCode));
 	}
@@ -192,23 +266,64 @@ public class DrawingSurface extends PApplet {
 			pressedBackspace = true;
 		}else if(key=='q') {
 			pressedQuit = true;
-		}else if(key==';') {
-			agent.useWeapon();
-		
+		}
+
+		if(key==';') {
+			agentFire = true;
+		}
+		if(keyCode == KeyEvent.VK_SPACE) {
+			villianFire = true;
 		}
 	}
 
 	private void checkPlayers() {
-		System.out.println(agent.getDirection());
-		if(agent.getWeapon().getWeaponState()) {
-			
+		if(agent.getWeapon().getWeaponState()) {//Checks if Agent fired weapon
+
 			int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
 			int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
 			if(villian.intersectsLine(agent.getCenterX(), agent.getCenterY(), x2+agent.getCenterX(), y2+agent.getCenterY())) {
-				villian.getHit(agent.getDirection());
+				villian.getHit(agent.getDirection(), agent);
+			}
+			agent.getWeapon().setWeaponState(false);
+		}
+		if(villian.getWeapon().getWeaponState()) {//Checks if villian fired weapon
+
+			int x2 = (int)Math.cos(Math.toRadians(villian.getDirection()))*DRAWING_WIDTH;
+			int y2 = (int)Math.sin(Math.toRadians(villian.getDirection()))*DRAWING_HEIGHT;
+			if(agent.intersectsLine(villian.getCenterX(), villian.getCenterY(), x2+villian.getCenterX(), y2+villian.getCenterY())) {
+				agent.getHit(villian.getDirection(), villian);
+			}
+			villian.getWeapon().setWeaponState(false);
+		}
+		if(agent.intersects(villian)) {//Checks if agent and villian are overlapping
+			if(agent.isInFrontOf(villian)) {
+				agent.pushed(villian.getDirection(), 5);
+				villian.pushed(villian.getDirection()+180, 5);
+			}else {
+				agent.pushed(agent.getDirection()+180, 5);
+				villian.pushed(agent.getDirection(), 5);
 			}
 		}
+		for(int i = 0; i<icons[0].length; i++) {
+			for(int t = 0; t<icons.length; t++) {
+				WeaponIcon w = icons[i][t];
+				if(w!=null) {
+					if(villian.intersects(w)) {
+						villian.addWeapon(w.getWeapon());
+						icons[i][t]=null;
+					}
+					if(agent.intersects(w)) {
+						agent.addWeapon(w.getWeapon());
+						icons[i][t]=null;
+					}
+				}
+
+			}
+		}
+
 	}
+
+
 
 	private void drawHomePage() {
 		textSize(32);
