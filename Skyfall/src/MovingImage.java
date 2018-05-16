@@ -54,6 +54,7 @@ public class MovingImage extends Rectangle2D.Double{
 	
 	
 	public void draw(PApplet marker) {		
+		//marker.rotate((float)(Math.toRadians(dir)));
 		marker.image(image,(int)x,(int)y,(int)width,(int)height);
 	}
 	

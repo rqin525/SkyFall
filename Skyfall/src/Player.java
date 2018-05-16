@@ -15,7 +15,7 @@ public class Player extends MovingImage{
 	
 	
 	public Player(PImage image, double x, double y) {
-		super(image, x, y, 80, 110);
+		super(image, x, y, 80, 100);
 		weapon = new TrashPistol();
 	}
 

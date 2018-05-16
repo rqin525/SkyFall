@@ -26,8 +26,7 @@ public class DrawingSurface extends PApplet {
 	private Player agent, villian;
 	private Platform board;
 	private int time, runCount, cooldownA, cooldownV, tilesDropped;
-	private int handTemp, shotTemp;
-	private PImage back, agentImage, villianImage, handgun, pistol, shotgun;
+	private PImage back, agentImage, villianImage, handgun, shotgun;
 
 	private ArrayList<Integer> keys;
 	private WeaponIcon[][] icons;
@@ -44,8 +43,6 @@ public class DrawingSurface extends PApplet {
 		cooldownV = millis();
 		runCount = 0;
 		tilesDropped = 0;
-		handTemp = 0;
-		shotTemp = 0;
 		keys = new ArrayList<Integer>();
 		icons = new WeaponIcon[8][8];
 		agentFire = false;
@@ -83,7 +80,7 @@ public class DrawingSurface extends PApplet {
 
 		drawHomePage();
 		if (pressedI) {
-			i.draw(this);
+			i.draw(this, agentImage, villianImage);
 			if (pressedBackspace) {
 				drawHomePage();
 				pressedI = false;
@@ -141,21 +138,19 @@ public class DrawingSurface extends PApplet {
 			if(agent.getWeapon().getWeaponState()) {
 				int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
 				int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
-				fill(255);
+				stroke(255);
 				line((float)agent.getCenterX(), (float)agent.getCenterY(), (float)(x2+agent.getCenterX()), (float)(y2+agent.getCenterY()));
-				fill(0);
+				stroke(0);
 			}
 			if(villian.getWeapon().getWeaponState()) {
 				int x2 = (int)Math.cos(Math.toRadians(villian.getDirection()))*DRAWING_WIDTH;
 				int y2 = (int)Math.sin(Math.toRadians(villian.getDirection()))*DRAWING_HEIGHT;
-				fill(255);
+				stroke(255);
 				line((float)villian.getCenterX(), (float)villian.getCenterY(), (float)(x2+villian.getCenterX()), (float)(y2+villian.getCenterY()));
-				fill(0);
+				stroke(0);
 			}
 
-			//System.out.println(x2 + " "+y2);
-
-
+			checkBoard();
 			checkPlayers();
 		}
 
@@ -163,7 +158,7 @@ public class DrawingSurface extends PApplet {
 	}
 
 	/**
-	 * runs the actual game
+	 * runs the actual game and manages time-related tasks
 	 */
 	public void run() {
 
@@ -175,7 +170,7 @@ public class DrawingSurface extends PApplet {
 		}
 
 		//Times the platform and drops tiles
-		if((millis()-time)>=3000) {
+		if((millis()-time)>=3000&&tilesDropped<64) {
 			int randX = (int)(Math.random()*8);
 			int randY = (int)(Math.random()*8);
 			while(board.isEmpty(randX, randY)) {
@@ -185,6 +180,25 @@ public class DrawingSurface extends PApplet {
 			board.dropTile(randX,  randY);
 			tilesDropped++;
 			time = millis();
+			
+		
+			if(tilesDropped%4==0&&tilesDropped<64) {
+				while(board.isEmpty(randX, randY)) {
+					randX = (int)(Math.random()*8);
+					randY = (int)(Math.random()*8);
+				}
+				icons[randX][randY]=new WeaponIcon(handgun, 50+randX*80, 25+randY*80, new Handgun());
+
+			}
+			if(tilesDropped%8==0&&tilesDropped<64) {
+				while(board.isEmpty(randX, randY)) {
+					randX = (int)(Math.random()*8);
+					randY = (int)(Math.random()*8);
+				}
+				icons[randX][randY]=new WeaponIcon(shotgun, 50+randX*80, 25+randY*80, new Shotgun());
+			}
+		
+		
 		}
 		//manages agent's weapon cooldown
 		if((millis()-cooldownA)>=agent.getWeapon().getCooldown()*1000&&agentFire) {
@@ -194,33 +208,12 @@ public class DrawingSurface extends PApplet {
 		}
 		//manages villian's weapon cooldown
 		if((millis()-cooldownV)>=villian.getWeapon().getCooldown()*1000&&villianFire) {
-			System.out.println(villian.getWeapon()+" "+villian.getWeapon().getKnockback());
 			villian.useWeapon();
 			villianFire = false;
 			cooldownV = millis();
 		}
 
-		if(tilesDropped-handTemp >= 4) {
-			int randX = (int)(Math.random()*8);
-			int randY = (int)(Math.random()*8);
-			while(board.isEmpty(randX, randY)) {
-				randX = (int)(Math.random()*8);
-				randY = (int)(Math.random()*8);
-			}
-			icons[randX][randY]=new WeaponIcon(handgun, 50+randX*80, 25+randY*80, new Handgun());
-
-			handTemp = tilesDropped;
-		}
-		if(tilesDropped-shotTemp >= 6) {
-			int randX = (int)(Math.random()*8);
-			int randY = (int)(Math.random()*8);
-			while(board.isEmpty(randX, randY)) {
-				randX = (int)(Math.random()*8);
-				randY = (int)(Math.random()*8);
-			}
-			icons[randX][randY]=new WeaponIcon(shotgun, 50+randX*80, 25+randY*80, new Shotgun());
-			shotTemp = tilesDropped;
-		}
+		
 
 		if (isPressed(KeyEvent.VK_LEFT)) {
 			agent.walk(180); agent.turn(180);}
@@ -304,7 +297,7 @@ public class DrawingSurface extends PApplet {
 				villian.pushed(agent.getDirection(), 5);
 			}
 		}
-		for(int i = 0; i<icons[0].length; i++) {
+		for(int i = 0; i<icons[0].length; i++) {//Checks if players pick up a weapon
 			for(int t = 0; t<icons.length; t++) {
 				WeaponIcon w = icons[i][t];
 				if(w!=null) {
@@ -323,7 +316,14 @@ public class DrawingSurface extends PApplet {
 
 	}
 
-
+	private void checkBoard() {
+		for(int i = 0; i<icons[0].length; i++) {//Checks if tile underneath WeaponIcon is empty
+			for(int t = 0; t<icons.length; t++) {
+				if(board.isEmpty(i, t)&&icons[i][t]!=null)
+					icons[i][t]=null;
+			}
+		}	
+	}
 
 	private void drawHomePage() {
 		textSize(32);
@@ -336,13 +336,4 @@ public class DrawingSurface extends PApplet {
 	}
 
 }
-
-
-
-
-
-
-
-
-
 
