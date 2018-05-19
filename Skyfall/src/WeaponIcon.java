@@ -1,5 +1,12 @@
 import processing.core.PImage;
 
+/**
+ * Represents a weapon icon that appears on the platform
+ * 
+ * @Author Richard Qin
+ * Date:5/13/18
+ * 
+ */
 public class WeaponIcon extends MovingImage{
 
 	private Weapon weapon;

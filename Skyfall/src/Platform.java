@@ -32,7 +32,10 @@ public class Platform {
 		if(x>=0&&x<=side&&y>=0&&y<=side)
 			grid[x][y] = true;
 	}
-	
+	public boolean isOnEmptyTile(int x, int y) {
+		return isEmpty(x, y);
+	}
+
 	
 	
 	public boolean isEmpty(int x, int y) {

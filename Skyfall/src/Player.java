@@ -12,27 +12,27 @@ import processing.core.PImage;
 public class Player extends MovingImage{
 
 	private Weapon weapon;
-	
-	
+
+
 	public Player(PImage image, double x, double y) {
 		super(image, x, y, 80, 100);
 		weapon = new TrashPistol();
 	}
 
-	
+
 	public void walk(double angle) {
-		
+
 		moveByAmount(Math.cos(Math.toRadians(angle))*5, Math.sin(Math.toRadians(angle))*5);
 	}
-	
+
 	public void addWeapon(Weapon w) {
 		weapon = w;
 	}
-	
+
 	public Weapon getWeapon() {
 		return weapon;
 	}
-	
+
 	public boolean isInFrontOf(Player other) {
 		if(getCenterX()<other.getCenterX()&&other.getDirection()==180) {
 			return true;
@@ -45,13 +45,13 @@ public class Player extends MovingImage{
 		}
 		return false;
 	}
-	
+
 	public void useWeapon() {
 		weapon.fire();
 	}
-	
+
 	public void pushed(double dir, int k) {
-			moveByAmount(Math.cos(Math.toRadians(dir))*k, Math.sin(Math.toRadians(dir))*k);
+		moveByAmount(Math.cos(Math.toRadians(dir))*k, Math.sin(Math.toRadians(dir))*k);
 	}
 	/**
 	 * Simulates the player getting hit by a weapon, and causes knockback accordingly
@@ -62,4 +62,11 @@ public class Player extends MovingImage{
 		int k = other.getWeapon().getKnockback();
 		pushed(dir, k);
 	}
+	public int getXCoord() {
+		return (int) (this.x / 80);
+	}
+	public int getYCoord() {
+		return (int) (this.y / 80);
+	}
+
 }

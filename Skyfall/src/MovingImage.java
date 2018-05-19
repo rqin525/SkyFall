@@ -20,6 +20,7 @@ public class MovingImage extends Rectangle2D.Double{
 	// FIELDS
 	private PImage image;
 	private double dir;
+	private boolean turned;
 	
 	// CONSTRUCTORS
 	
@@ -27,6 +28,7 @@ public class MovingImage extends Rectangle2D.Double{
 		super(x,y,w,h);
 		image = img;
 		dir = 0;
+		turned = false;
 	}
 	
 	
@@ -54,12 +56,19 @@ public class MovingImage extends Rectangle2D.Double{
 	
 	
 	public void draw(PApplet marker) {		
-		//marker.rotate((float)(Math.toRadians(dir)));
+		
 		marker.image(image,(int)x,(int)y,(int)width,(int)height);
+	/*	if(turned) {
+			marker.translate((float)x, (float)y);
+			marker.rotate((float)(Math.toRadians(dir)));
+			marker.image(image,0,0,(int)width,(int)height);
+		}
+		marker.translate(0, 0);*/
 	}
 	
 	public void turn(double dir) {
 		this.dir = dir;
+		turned = true;
 	}
 	
 	public void turnToward(int x, int y) {
