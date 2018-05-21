@@ -1,3 +1,5 @@
+import processing.core.PApplet;
+import processing.core.PImage;
 
 /**
  * Represents the weakest weapon available
@@ -11,7 +13,9 @@ public class TrashPistol extends Weapon{
 		super(40, 1);
 	}
 	
-	
+	public String toString() {
+		return "TrashPistol";
+	}
 	
 	
 }

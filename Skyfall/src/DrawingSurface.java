@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PImage;
 
 
@@ -22,13 +23,14 @@ import processing.core.PImage;
  */
 public class DrawingSurface extends PApplet {
 	public static final int DRAWING_WIDTH = 1000;
-	public static final int DRAWING_HEIGHT = 700;
+	public static final int DRAWING_HEIGHT = 730;
 
 	private Player agent, villain;
 	private Platform board;
-	private int time, runCount, cooldownA, cooldownV, tilesDropped;
-	private PImage agentImage, villainImage, handgun, shotgun, minigun;
-	private PImage back, home;
+	private int time, runCount, colorCount, cooldownA, cooldownV, tilesDropped;
+	private PImage agentImage, villainImage, handgun, shotgun, minigun, laser;
+	private PImage back, home, menu;
+	private PFont font;
 
 	private ArrayList<Integer> keys;
 	private WeaponIcon[][] icons;
@@ -46,6 +48,7 @@ public class DrawingSurface extends PApplet {
 		cooldownA = millis();
 		cooldownV = millis();
 		runCount = 0;
+		colorCount = 0;
 		tilesDropped = 0;
 		keys = new ArrayList<Integer>();
 		icons = new WeaponIcon[8][8];
@@ -63,13 +66,18 @@ public class DrawingSurface extends PApplet {
 		agentImage = loadImage("Agent.png");
 		villainImage = loadImage("villian.png");
 
-		agent = new Player(agentImage, 620, height/2);
-		villain = new Player(villainImage, 50, height/2);
+		agent = new Player(agentImage, 600, 360);
+		villain = new Player(villainImage, 90, 360);
 
 		handgun = loadImage("handgun.png");
 		shotgun = loadImage("Shotgun.png");
 		minigun = loadImage("minigunIcon.png");
-		home = loadImage("bond-iris.jpg");
+		
+		font = createFont("Capture_it_2.ttf", 10);
+		//home = loadImage("bond-iris.jpg");
+		//home.resize(width, height);
+		//menu = loadImage("metal.jpg");
+		//menu.resize(100,730);
 		//size(0,0,PApplet.P3D);
 	}
 
@@ -79,13 +87,13 @@ public class DrawingSurface extends PApplet {
 	// line is executed again.
 	public void draw() { 
 		background(255);   // Clear the screen with a white background
-
-
+		
 		float ratioX = (float)width/DRAWING_WIDTH;
 		float ratioY = (float)height/DRAWING_HEIGHT;
 
 		scale(ratioX, ratioY);
 
+		textFont(font);
 		drawHomePage();
 		if (pressedI) {
 			i.draw(this, agentImage, villainImage);
@@ -94,70 +102,37 @@ public class DrawingSurface extends PApplet {
 				pressedI = false;
 			}
 			pressedBackspace = false;
-		} else if (pressedEnter) {
-			
+		} else if (pressedEnter) { //draws the actual game screen		
 			if(back.height==height&&back.width==width)
 				background(back);
 			else {
 				back.resize(width, height);
-
 			}
-			if ((agent.x >= 0 && agent.x < 640) && (agent.y >= 0 && agent.y < 640)) {
-				if (!board.isOnEmptyTile(agent.getXCoord(), agent.getYCoord())) {
-					agent.draw(this);
-
-				} else if (board.isOnEmptyTile(agent.getXCoord(), agent.getYCoord())) {
-					if ((agent.x % 80 <= 10 || agent.x % 80 >= 70) && (agent.y % 80 <= 10 || agent.y % 80 >= 70)) {
-						agent.draw(this);
-					} else {
-						canMove = false;
-						villainWin = true;
-					}
-				}
-			} else {
-				canMove = false;
-				villainWin = true;
-			}
-
-			if ((villain.x >= 0 && villain.x < 640) && (villain.y >= 0 && villain.y < 640)) {
-				if (!board.isOnEmptyTile(villain.getXCoord(), villain.getYCoord())) {
-					villain.draw(this);
-
-				} else if (board.isOnEmptyTile(villain.getXCoord(), villain.getYCoord())) {
-					if ((villain.x % 80 <= 10 || villain.x % 80 >= 70) && (villain.y % 80 <= 10 || villain.y % 80 >= 70)) {
-						villain.draw(this);
-					} else {
-						canMove = false;
-						agentWin = true;
-					}
-				}
-
-			} else {
-				canMove = false;
-				agentWin = true;
-			}
-
-			fill(0);
+			
+			fill(255);
 			textAlign(LEFT);
-			textSize(12);
+			textSize(20);
 
-			text("Player 1: Agent X", 770, 30);
+			//image(menu, 750, 0);
+			text("Player 1: Agent X", 730, 30);
 			image(agentImage, 770, 50);
+			
 
-			text("Player 2: Supervillian Y", 770, 385);
+			text("Player 2: Supervillian Y", 730, 385);
 			image(villainImage, 770, 405);
 
-			text("Press 'q' to quit game", 770, 650);
+			text("Press 'q' to quit game", 730, 650);
 			if (pressedQuit) {
 				drawHomePage();
 				board = new Platform();
-				agent = new Player(agentImage, 620, height/2);
-				villain = new Player(villainImage, 50, height/2);
+				agent = new Player(agentImage, 600, 360);
+				villain = new Player(villainImage, 90, 360);
 				icons = new WeaponIcon[8][8];
 				canMove = true;
 				tilesDropped = 0;
 				time = 0;
 				runCount = 0;
+				colorCount = 0;
 
 				pressedEnter = false; villainWin = false; agentWin = false;
 			}
@@ -175,29 +150,34 @@ public class DrawingSurface extends PApplet {
 				}
 			}
 
+			if(agent!=null&&villain!=null)
+				run();
 
-			agent.draw(this);
-			villain.draw(this);
+			if(agent!=null&&villain!=null) {
+				agent.draw(this);
+				villain.draw(this);
+				text("Current Weapon:\n" + agent.getWeapon().toString(), 760, 130);
+				text("Current Weapon:\n" + villain.getWeapon().toString(), 760, 486);
 
-			run();
+				if(agent.getWeapon().getWeaponState()) {
+					int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
+					int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
+					stroke(255);
+					line((float)agent.getCenterX(), (float)agent.getCenterY(), (float)(x2+agent.getCenterX()), (float)(y2+agent.getCenterY()));
+					stroke(0);
+				}
+				if(villain.getWeapon().getWeaponState()) {
+					int x2 = (int)Math.cos(Math.toRadians(villain.getDirection()))*DRAWING_WIDTH;
+					int y2 = (int)Math.sin(Math.toRadians(villain.getDirection()))*DRAWING_HEIGHT;
+					stroke(255);
+					line((float)villain.getCenterX(), (float)villain.getCenterY(), (float)(x2+villain.getCenterX()), (float)(y2+villain.getCenterY()));
+					stroke(0);
+				}
 
-			if(agent.getWeapon().getWeaponState()) {
-				int x2 = (int)Math.cos(Math.toRadians(agent.getDirection()))*DRAWING_WIDTH;
-				int y2 = (int)Math.sin(Math.toRadians(agent.getDirection()))*DRAWING_HEIGHT;
-				stroke(255);
-				line((float)agent.getCenterX(), (float)agent.getCenterY(), (float)(x2+agent.getCenterX()), (float)(y2+agent.getCenterY()));
-				stroke(0);
+				checkBoard();
+				checkPlayers();
 			}
-			if(villain.getWeapon().getWeaponState()) {
-				int x2 = (int)Math.cos(Math.toRadians(villain.getDirection()))*DRAWING_WIDTH;
-				int y2 = (int)Math.sin(Math.toRadians(villain.getDirection()))*DRAWING_HEIGHT;
-				stroke(255);
-				line((float)villain.getCenterX(), (float)villain.getCenterY(), (float)(x2+villain.getCenterX()), (float)(y2+villain.getCenterY()));
-				stroke(0);
-			}
-
-			checkBoard();
-			checkPlayers();
+			checkWin();
 		}
 
 
@@ -215,18 +195,20 @@ public class DrawingSurface extends PApplet {
 			runCount++;
 		}
 
-		//Times the platform and drops tiles
+		//Times the platform, drops tiles, and spawns weapons
+		if((millis()-time)>=2000&&tilesDropped<64&&colorCount==0) {
+			board.colorRandTile();
+			colorCount++;
+		}
 		if((millis()-time)>=3000&&tilesDropped<64) {
-			int randX = (int)(Math.random()*8);
-			int randY = (int)(Math.random()*8);
-			while(board.isEmpty(randX, randY)) {
-				randX = (int)(Math.random()*8);
-				randY = (int)(Math.random()*8);
-			}
-			board.dropTile(randX,  randY);
+			colorCount = 0;
+			board.dropColoredTile();
+			//	board.dropTile(randX,  randY);
 			tilesDropped++;
 			time = millis();
 
+			int randX = (int)(Math.random()*8);
+			int randY = (int)(Math.random()*8);
 
 			if(tilesDropped%4==0&&tilesDropped<64) {
 				while(board.isEmpty(randX, randY)) {
@@ -284,34 +266,21 @@ public class DrawingSurface extends PApplet {
 			villain.walk(90); villain.turn(90);}
 		if(isPressed(KeyEvent.VK_D)) {
 			villain.walk(0); villain.turn(0);}
-		
-		//manages players when round ends
-		if (!canMove) {
-			drawGameOver();
-			if (isPressed(KeyEvent.VK_UP))
-				agent.walk(0);
-			else if (isPressed(KeyEvent.VK_LEFT))
-				agent.walk(0);
-			else if (isPressed(KeyEvent.VK_DOWN))
-				agent.walk(0);
-			else if (isPressed(KeyEvent.VK_RIGHT))
-				agent.walk(0);
-			else if (isPressed(KeyEvent.VK_W))
-				villain.walk(0);
-			else if (isPressed(KeyEvent.VK_A))
-				villain.walk(0);
-			else if (isPressed(KeyEvent.VK_S))
-				villain.walk(0);
-			else if (isPressed(KeyEvent.VK_D))
-				villain.walk(0);
-		}
+		if(isPressed(KeyEvent.VK_SEMICOLON)) {
+			agentFire = true;}
+		if(isPressed(KeyEvent.VK_SPACE)) {
+			villainFire = true;}
+
+
 
 	}
 
-	
+
 	public void keyReleased() {
-		agent.getWeapon().setWeaponState(false);
-		villain.getWeapon().setWeaponState(false);
+		if(agent!=null&&villain!=null) {
+			agent.getWeapon().setWeaponState(false);
+			villain.getWeapon().setWeaponState(false);
+		}
 		agentFire = false;
 		villainFire = false;
 		while(keys.contains(keyCode))
@@ -332,13 +301,6 @@ public class DrawingSurface extends PApplet {
 			pressedBackspace = true;
 		}else if(key=='q') {
 			pressedQuit = true;
-		}
-
-		if(key==';') {
-			agentFire = true;
-		}
-		if(keyCode == KeyEvent.VK_SPACE) {
-			villainFire = true;
 		}
 	}
 
@@ -386,6 +348,29 @@ public class DrawingSurface extends PApplet {
 
 			}
 		}
+		//checks if players are on a solid tile
+		double agentX = agent.getCenterX();
+		double agentY = agent.getCenterY();
+		if ((agentX >= 50 && agentX < 690) && (agentY >= 25 && agentY < 665)) {
+			if (board.isOnEmptyTile(agent.getXCoord(), agent.getYCoord())) {				
+				canMove = false;
+				villainWin = true;
+			}
+		} else {
+			canMove = false;
+			villainWin = true;
+		}
+		double villainX = villain.getCenterX();
+		double villainY = villain.getCenterY();
+		if ((villainX >= 50 && villainX < 690) && (villainY >= 25 && villainY < 665)) {
+			if (board.isOnEmptyTile(villain.getXCoord(), villain.getYCoord())) {
+				canMove = false;
+				agentWin = true;
+			}
+		} else {
+			canMove = false;
+			agentWin = true;
+		}
 
 	}
 
@@ -398,50 +383,61 @@ public class DrawingSurface extends PApplet {
 		}	
 	}
 
-	private void drawHomePage() {
-		//image(home, width, height);
-		/*if(back.height==height&&back.width==width)
-			background(home);
-		else {
-			home.resize(width, height);
-		}*/
-		textSize(32);
-		fill(255, 0, 0);
-		text("Skyfall Game", width/2-100, 50);
-		textSize(20);
-		fill(0);
-		text("Press 'Enter' to start game", 300, DRAWING_HEIGHT/2);
-		text("Press 'i' to view the instructions", 300, 320);
-	}
-	
-	private void drawGameOver() {
-		fill(255);
-		rect(0, 0, 1000, 700);
-		textSize(26);
-		fill(255, 0, 0);
-		textAlign(CENTER, TOP);
-		text("GAME OVER", width/2, 100);
-		text("Press 'q' to quit game", width/2, 350);
-		textAlign(CENTER, TOP);
-		textSize(20);
-		fill(0);
-		if(agentWin) {
-			textSize(30);
-			fill(0, 0, 255);
-			text("Agent X wins!", width/2, 250);
-			textSize(20);
-			fill(128, 0, 128);
-			text("Congratulations Agent X! You have saved the city"
-					+ "from the evil acts of Villain Y. A statue will\nbe erected in your honor", width/2, 500);
+	private void checkWin() {
+		//manages players when round ends
+		if (!canMove) {
+			drawGameOver();
+			agent = null;
+			villain = null;
 		}
-		if(villainWin) {
+	}
+
+	private void drawHomePage() {
+		background(0);
+		
+		textAlign(CENTER, TOP);
+		textSize(80);
+		fill(255, 0, 0);
+		text("Skyfall", 500, 60);
+		image(agentImage, 800, 400);
+		image(villainImage, 150, 400);
+		image(minigun, 300, 320);
+		textSize(30);
+		fill(255);
+		text("Press 'Enter' to start game", 500, 240);
+		text("Press 'i' to view the instructions", 500, 270);
+	}
+
+	private void drawGameOver() {
+		fill(0);
+		rect(0, 0, 1000, 730);
+		textSize(40);
+		fill(255, 0, 0);
+		textAlign(CENTER, TOP);
+		text("GAME OVER", 500, 100);
+		text("Press 'q' to quit game", 500, 350);
+		textAlign(CENTER, TOP);
+		textSize(20);
+		if(agentWin&&villainWin) {
 			textSize(30);
-			fill(0, 0, 255);
-			text("Supervillain Y wins!", width/2, 250);
+			fill(255, 165, 0);
+			text("You both died you fools", 500, 250);
+		}else if(agentWin) {
+			textSize(30);
+			fill(255, 165, 0);
+			text("Agent X wins!", 500, 250);
 			textSize(20);
-			fill(128, 0, 128);
+			fill(255);
+			text("Congratulations Agent X! You have saved the city"
+					+ "from the evil acts of Villain Y. \nA statue will be erected in your honor", 500, 500);
+		}else if(villainWin) {
+			textSize(30);
+			fill(255, 165, 0);
+			text("Supervillain Y wins!", 500, 250);
+			textSize(20);
+			fill(255);
 			text("Congratulations Supervillain Y! You have finally "
-					+ "removed the one obstacle from your plans. You\nare now free to enforce judgement on the world", width/2, 500);
+					+ "removed the one obstacle from your\nplans. You are now free to enforce judgement on the world", 500, 500);
 		}
 	}
 

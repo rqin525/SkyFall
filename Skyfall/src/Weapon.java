@@ -1,3 +1,4 @@
+import processing.core.PApplet;
 
 /**
  *Represents a general weapon that can fire and cause knock back 
@@ -36,9 +37,9 @@ public abstract class Weapon {
 		return cooldown;
 	}
 	
-	public void draw() {
+	public abstract String toString();
 		
-	}
+	
 	
 	
 }

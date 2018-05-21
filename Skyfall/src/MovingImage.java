@@ -27,7 +27,7 @@ public class MovingImage extends Rectangle2D.Double{
 	public MovingImage(PImage img, double x, double y, double w, double h) {
 		super(x,y,w,h);
 		image = img;
-		dir = 0;
+		dir = 90;
 		turned = false;
 	}
 	
@@ -56,14 +56,12 @@ public class MovingImage extends Rectangle2D.Double{
 	
 	
 	public void draw(PApplet marker) {		
-		
-		marker.image(image,(int)x,(int)y,(int)width,(int)height);
-	/*	if(turned) {
-			marker.translate((float)x, (float)y);
-			marker.rotate((float)(Math.toRadians(dir)));
-			marker.image(image,0,0,(int)width,(int)height);
-		}
-		marker.translate(0, 0);*/
+			marker.pushMatrix();
+			marker.translate((float)getCenterX(), (float)getCenterY());
+			marker.rotate((float)(Math.toRadians(dir-90)));
+			marker.image(image,(float)(0-width/2),(float)(0-height/2),(int)width,(int)height);
+			//marker.resetMatrix();	
+			marker.popMatrix();
 	}
 	
 	public void turn(double dir) {

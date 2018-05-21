@@ -1,3 +1,5 @@
+import processing.core.PApplet;
+import processing.core.PImage;
 
 /**
  * Represents a moderately powerful weapon that is an upgrade of TrashPistol
@@ -9,5 +11,9 @@ public class Handgun extends Weapon{
 	
 	public Handgun() {
 		super(80, 1);
+	}
+	
+	public String toString() {
+		return "Handgun";
 	}
 }

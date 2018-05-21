@@ -1,3 +1,5 @@
+import processing.core.PApplet;
+import processing.core.PImage;
 
 /**
  * Represents a minigun, the best weapon in the game
@@ -10,9 +12,11 @@ public class Minigun extends Weapon{
 
 	
 	public Minigun() {
-		super(40, 0.05);
+		super(20, 0.05);
 	}
 	
-	
+	public String toString() {
+		return "Minigun";
+	}
 	
 }

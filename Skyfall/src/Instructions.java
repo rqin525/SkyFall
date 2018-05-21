@@ -9,8 +9,10 @@ import processing.core.PImage;
  */
 public class Instructions {
 	public void draw(PApplet marker, PImage agent, PImage villian) {
+		marker.pushMatrix();
+		marker.textAlign(marker.LEFT, marker.TOP);
 		marker.fill(255);
-		marker.rect(0, 0, 1000, 700);
+		marker.rect(0, 0, 1000, 730);
 		marker.textSize(26);
 		marker.fill(0);
 		marker.text("Instructions", 220, 40);
@@ -32,10 +34,10 @@ public class Instructions {
 		marker.image(agent, 500, 360);
 		marker.image(villian, 500, 500);
 		
-		marker.line(600, 0, 600, 700);
-		marker.text("Weapons drop every so often on an available\ntile, and can be picked up "
-				+ "if the player runs\ninto the icons. A player's weapon is replaced\nwith "
-				+ "the most recent weapon picked up.", 630, 100);
-
+		marker.line(600, 0, 600, 730);
+		marker.text("Weapons drop every so often on an \navailable tile, and can be picked up "
+				+ "if the \nplayer runs into the icons. A player's \nweapon is replaced with "
+				+ "the most recent \nweapon picked up.", 610, 100);
+		marker.popMatrix();
 	}
 }

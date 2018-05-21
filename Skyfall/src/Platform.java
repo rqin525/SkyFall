@@ -15,28 +15,52 @@ public class Platform {
 	private boolean[][] grid;
 	private int side;
 	private Rectangle[][] tiles;
+	private int colorX, colorY;
 	
 	public Platform() {
 		grid = new boolean[8][8];
 		side = 8;
 		tiles = new Rectangle[8][8];
+		colorX = 100;
+		colorY = 100;
 	}
 	
 	public Platform(int sideNum) {
 		grid = new boolean[sideNum][sideNum];
 		side = sideNum;
 		tiles = new Rectangle[sideNum][sideNum];
+		colorX = 100;
+		colorY = 100;
 	}
 	
 	public void dropTile(int x, int y) {
 		if(x>=0&&x<=side&&y>=0&&y<=side)
 			grid[x][y] = true;
 	}
+	
+	public void dropColoredTile() {
+		grid[colorX][colorY]=true;
+	}
+	
 	public boolean isOnEmptyTile(int x, int y) {
 		return isEmpty(x, y);
 	}
 
+	public void colorTile(int x, int y) {
+		colorX = x;
+		colorY = y;
+	}
 	
+	public void colorRandTile() {
+		int randX = (int)(Math.random()*8);
+		int randY = (int)(Math.random()*8);
+		while(isEmpty(randX, randY)) {
+			randX = (int)(Math.random()*8);
+			randY = (int)(Math.random()*8);
+		}
+		colorX = randX;
+		colorY = randY;
+	}
 	
 	public boolean isEmpty(int x, int y) {
 		return grid[x][y];
@@ -69,6 +93,8 @@ public class Platform {
 			for(int j = 0; j<grid.length;j++) {
 				if(grid[j][i]) {
 					marker.noFill();
+				}else if(j==colorX&&i==colorY){
+					marker.fill(186, 65, 65);
 				}else
 					marker.fill(128, 128, 128);
 				

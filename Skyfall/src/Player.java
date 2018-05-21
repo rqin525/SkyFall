@@ -15,7 +15,7 @@ public class Player extends MovingImage{
 
 
 	public Player(PImage image, double x, double y) {
-		super(image, x, y, 80, 100);
+		super(image, x, y, 60, 80);
 		weapon = new TrashPistol();
 	}
 
@@ -63,10 +63,10 @@ public class Player extends MovingImage{
 		pushed(dir, k);
 	}
 	public int getXCoord() {
-		return (int) (this.x / 80);
+		return (int) ((getCenterX()-50) / 80);
 	}
 	public int getYCoord() {
-		return (int) (this.y / 80);
+		return (int) ((getCenterY()-25) / 80);
 	}
 
 }

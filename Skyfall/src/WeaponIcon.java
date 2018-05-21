@@ -1,3 +1,4 @@
+import processing.core.PApplet;
 import processing.core.PImage;
 
 /**
@@ -19,5 +20,11 @@ public class WeaponIcon extends MovingImage{
 	public Weapon getWeapon() {
 		return weapon;
 	}
+	
+	/*public void draw(PApplet marker) {
+		//marker.translate((float)getCenterX(), (float)getCenterY());
+		marker.rotate((float)(Math.toRadians(getDirection()-90)));
+		super.draw(marker);
+	}*/
 	
 }
