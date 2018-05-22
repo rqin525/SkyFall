@@ -28,8 +28,8 @@ public class DrawingSurface extends PApplet {
 	private Player agent, villain;
 	private Platform board;
 	private int time, runCount, colorCount, cooldownA, cooldownV, tilesDropped;
-	private PImage agentImage, villainImage, handgun, shotgun, minigun, laser;
-	private PImage back, home, menu;
+	private PImage agentImage, villainImage, handgun, shotgun, minigun;
+	private PImage back;
 	private PFont font;
 
 	private ArrayList<Integer> keys;
@@ -61,7 +61,7 @@ public class DrawingSurface extends PApplet {
 	// The statements in the setup() function 
 	// execute once when the program begins
 	public void setup() {
-		back = loadImage("cityTop.jpg");
+		back = loadImage("city.jpg");
 
 		agentImage = loadImage("Agent.png");
 		villainImage = loadImage("villian.png");
@@ -324,12 +324,12 @@ public class DrawingSurface extends PApplet {
 			villain.getWeapon().setWeaponState(false);
 		}
 		if(agent.intersects(villain)) {//Checks if agent and villian are overlapping
-			if(agent.isInFrontOf(villain)) {
-				agent.pushed(villain.getDirection(), 5);
-				villain.pushed(villain.getDirection()+180, 5);
+			if(agent.isInFrontOf(villain)) {				
+				villain.pushed(villain.getDirection()+180, 10);
+				agent.pushed(villain.getDirection(), 10);
 			}else {
-				agent.pushed(agent.getDirection()+180, 5);
-				villain.pushed(agent.getDirection(), 5);
+				agent.pushed(agent.getDirection()+180, 10);
+				villain.pushed(agent.getDirection(), 10);
 			}
 		}
 		for(int i = 0; i<icons[0].length; i++) {//Checks if players pick up a weapon

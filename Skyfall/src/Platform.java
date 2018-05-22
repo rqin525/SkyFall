@@ -38,6 +38,11 @@ public class Platform {
 			grid[x][y] = true;
 	}
 	
+	/**
+	 * Drops the currently colored tile so it becomes empty
+	 * @pre The colorTile() or colorRandTile() must have been called first
+	 * so that a colored tile exists
+	 */
 	public void dropColoredTile() {
 		grid[colorX][colorY]=true;
 	}
@@ -46,11 +51,19 @@ public class Platform {
 		return isEmpty(x, y);
 	}
 
+	/**
+	 * Chooses the tile at [x][y] to color in draw()
+	 * @param x The x position of the tile in the grid
+	 * @param y The y position of the tile in the grid
+	 */
 	public void colorTile(int x, int y) {
 		colorX = x;
 		colorY = y;
 	}
 	
+	/**
+	 * Chooses a single random tile in the grid that will be colored in draw()
+	 */
 	public void colorRandTile() {
 		int randX = (int)(Math.random()*8);
 		int randY = (int)(Math.random()*8);

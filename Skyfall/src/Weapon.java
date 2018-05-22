@@ -1,7 +1,8 @@
 import processing.core.PApplet;
 
 /**
- *Represents a general weapon that can fire and cause knock back 
+ *Represents a general weapon that can be used by players and cause knock back to 
+ *other players
  *@author Richard Qin
  *Date: 5/4/18
  */
