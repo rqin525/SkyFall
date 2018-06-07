@@ -153,6 +153,8 @@ public class DrawingSurface extends PApplet {
 			if(agent!=null&&villain!=null)
 				run();
 
+			checkWin();
+			
 			if(agent!=null&&villain!=null) {
 				agent.draw(this);
 				villain.draw(this);
@@ -177,7 +179,7 @@ public class DrawingSurface extends PApplet {
 				checkBoard();
 				checkPlayers();
 			}
-			checkWin();
+			//checkWin();
 		}
 
 
@@ -334,17 +336,17 @@ public class DrawingSurface extends PApplet {
 		}
 		for(int i = 0; i<icons[0].length; i++) {//Checks if players pick up a weapon
 			for(int t = 0; t<icons.length; t++) {
-				WeaponIcon w = icons[i][t];
-				if(w!=null) {
-					if(villain.intersects(w)) {
-						villain.addWeapon(w.getWeapon());
+				//WeaponIcon w = icons[i][t];
+				//if(icons[i][t]!=null) {
+					if(icons[i][t]!=null&&villain.intersects(icons[i][t])) {
+						villain.addWeapon(icons[i][t].getWeapon());
 						icons[i][t]=null;
 					}
-					if(agent.intersects(w)) {
-						agent.addWeapon(w.getWeapon());
+					if(icons[i][t]!=null&&agent.intersects(icons[i][t])) {
+						agent.addWeapon(icons[i][t].getWeapon());
 						icons[i][t]=null;
 					}
-				}
+				//}
 
 			}
 		}

@@ -4,7 +4,7 @@ import processing.core.PImage;
 /**
  * Represents a weapon icon that appears on the platform
  * 
- * @Author Richard Qin
+ * @author Richard Qin
  * Date:5/13/18
  * 
  */
